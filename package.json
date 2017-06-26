@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,15 @@
   "bugs": {
     "url": "https://github.com/toddallen115/twitter-geo/issues"
   },
-  "homepage": "https://github.com/toddallen115/twitter-geo#readme"
+  "homepage": "https://github.com/toddallen115/twitter-geo#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "d3": "^4.9.1",
+    "express": "^4.15.3",
+    "hbs": "^4.0.1",
+    "http": "0.0.0",
+    "jsdom": "^11.0.0",
+    "path": "^0.12.7",
+    "twitter": "^1.7.1"
+  }
 }
