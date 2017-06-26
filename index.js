@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 
 var d3 = require("d3");
 var jsdom = require("jsdom");
+var objectToJSON = require("object-to-json");
+var fs = require('fs-extra');
 
 // var document = jsdom.jsdom();
 // var svg = d3.select(document.body).append("svg");
@@ -18,6 +20,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -33,15 +36,22 @@ var client = new Twitter({
 });
 
 // // // // // //
-var wordsObj = {};
-var filteredWords = {};
-var hashtags = {};
+
 
 app.get('/', function(req, res){
   res.render('form');
 });
 
 app.post('/', function(req, res){
+  var wordsObj = {};
+  var filteredWords = {};
+  var hashtags = {};
+
+  var JSONobj = {
+    name: "test",
+    children: []
+  };
+  
   client.get(`https://api.twitter.com/1.1/search/tweets.json?q=%23${req.body.hashtag}&geocode=${req.body.latitude}%2C${req.body.longitude}%2C${req.body.radius}mi&count=100`,
       function(err, tweets, response){
 
@@ -64,12 +74,32 @@ app.post('/', function(req, res){
           }
         };
 
-        console.log(wordsObj);
-        console.log(hashtags);
-        console.log(filteredWords);
-        res.render('data');
+        for(var key in filteredWords){
+          var obj = {};
+          obj.name = key;
+          obj.size = filteredWords[key];
+          JSONobj.children.push(obj);
+        };
+
+        //console.log(JSONobj);
+        var jsonData = JSON.stringify(JSONobj);
+        //res.render('data')
+        //empty data directory
+        fs.emptyDir('./public/data')
+        .then(() => { //recreate data file
+          fs.ensureFile('./public/data/test.json')
+          .then(() => { //write json to data file
+            fs.writeJsonSync('./public/data/test.json', JSONobj)
+            // .then(() => { //in cb, render data hbs
+              res.render('data')
+            // })
+          })
+        })
+
+
+
       });
-})
+    })
 
 
 // // // // // // // // // // // // // // // // //
