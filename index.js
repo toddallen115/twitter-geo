@@ -1,5 +1,4 @@
 var express = require('express');
-var router = express.Router();
 var http = require('http');
 
 var path = require('path');
@@ -13,13 +12,14 @@ var jsdom = require("jsdom");
 // var document = jsdom.jsdom();
 // var svg = d3.select(document.body).append("svg");
 
+var app = express();
 // // //
 
-router.set('views', path.join(__dirname, 'views'));
-router.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs');
 
-router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // // // //
 
@@ -37,8 +37,12 @@ var wordsObj = {};
 var filteredWords = {};
 var hashtags = {};
 
-router.get('/', function(req, res){
-  client.get('https://api.twitter.com/1.1/search/tweets.json?q=%23Traffic&geocode=45.5209273%2C-122.6802017%2C10mi&count=100',
+app.get('/', function(req, res){
+  res.render('form');
+});
+
+app.post('/', function(req, res){
+  client.get(`https://api.twitter.com/1.1/search/tweets.json?q=%23${req.body.hashtag}&geocode=${req.body.latitude}%2C${req.body.longitude}%2C${req.body.radius}mi&count=100`,
       function(err, tweets, response){
 
         tweets.statuses.forEach(function(tweet){
@@ -63,15 +67,15 @@ router.get('/', function(req, res){
         console.log(wordsObj);
         console.log(hashtags);
         console.log(filteredWords);
+        res.render('data');
       });
-
-});
+})
 
 
 // // // // // // // // // // // // // // // // //
 var port = process.env.PORT || '3000';
 
-var server = http.createServer(router);
+var server = http.createServer(app);
 
 server.listen(port);
 server.on('error', onError);
